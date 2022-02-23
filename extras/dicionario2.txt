@@ -1,0 +1,16 @@
+oie 5.0
+idk 1.1111
+abstract 5.0
+text 5.0
+pos 5.0
+palavra 5.0
+madureira 2.5
+com 5.0
+diogo 3.3333
+azevedo 3.3333
+ola 10.0
+ricardo 2.5
+program 3.3333
+test 10.0
+nada 10.0
+nenhum 10.0

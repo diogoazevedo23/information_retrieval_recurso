@@ -1,0 +1,2 @@
+madureira:{9: {'weight': 0.7071135624381276, 'positions': [1]}}
+ricardo:{9: {'weight': 0.7071135624381276, 'positions': [0]}}

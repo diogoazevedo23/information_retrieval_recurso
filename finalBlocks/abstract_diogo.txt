@@ -1,0 +1,4 @@
+abstract:{4: {'weight': 1.0, 'positions': [2]}, 0: {'weight': 1.0, 'positions': [2]}}
+azevedo:{6: {'weight': 1.0, 'positions': [1]}, 8: {'weight': 1.0, 'positions': [0]}, 2: {'weight': 1.0, 'positions': [2]}}
+com:{5: {'weight': 1.0, 'positions': [3]}, 1: {'weight': 1.0, 'positions': [5]}}
+diogo:{6: {'weight': 1.0, 'positions': [0]}, 3: {'weight': 1.0, 'positions': [6]}, 2: {'weight': 1.4771, 'positions': [0, 1, 7]}}

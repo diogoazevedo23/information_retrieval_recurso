@@ -4,22 +4,20 @@
     Autores:
     Diogo Azevedo nº 104654 / Ricardo Madureira nº 104624
     25/02/2022
-
 """
 
 # Imports
-from turtle import pos
+import sys
 from Tokenizer import Tokenizer         # Import of Tokenizer
 from Merger import Merger               # Import of Merger
-import json                             # Json Functions
 import time                             # Time functions
-import sys
 from collections import OrderedDict     # Order dictionaries
 import csv                              # Reading CSV files
 import psutil                           # Checks memory
 import math
 from statistics import mean             # Mean for AVGDL
-
+from cmath import sqrt
+from turtle import pos
 
 """ Main class """
 class mainClass:
@@ -34,13 +32,15 @@ class mainClass:
         self.chunksize = chunksize
         self.ranker = ranker
         self.file = file
-        #self.docsLength = {}        # Length of the documents
+        self.docsLength = []        # Length of the documents
+        self.avgdl = 0              # Average Document Lenght
         self.N = 0                  # Size of corpus
         self.numberOfBlock = 0      # Number of Block of indexing
         self.indexed_words = {}
         self.dicionario = {}        # Dictionary (Term:IDF)
         self.arrayDocsIds = []      # Array with ID of each Doc
-        self.indexDocs = 0              # Index of docs
+        self.indexDocs = 0          # Index of docs
+        self.L = 0                  # Sum of all weights of a doc
 
     """ Function to send chunks of data to processing """
     def generateChunks(self, reader):
@@ -62,38 +62,51 @@ class mainClass:
 
             for chunk in self.generateChunks(reader):
                 print("\n\t\t** ITERATION Nº", self.numberOfBlock, "**\n")
-                tokens = []                                                             # Words
                 mem = psutil.virtual_memory().available
                 print("\nMemory Available ->", mem >> 20, "mb")
                 for row in chunk:
+                    newTokens = []
                     index = row['review_id']
                     appended_string = row['product_title'] + " " + \
-                        row['review_headline'] + " " + row['review_body']               # Join title, headline and body rows
-                    tokens += self.tokenizer.tokenize(appended_string, self.indexDocs)           # Apply tokenizer of the tokens
+                        row['review_headline'] + " " + row['review_body']                # Join title, headline and body rows
+                    newTokens = self.tokenizer.tokenize(appended_string, self.indexDocs) # Apply tokenizer of the tokens
+                    #print("\nnewTokens:", newTokens, "\n")
 
-                    self.arrayDocsIds.append(index)
-                    #self.docsLength[index] = (len(tokens))
-                    #print("self.docsLength:", self.docsLength)
-                    self.N += 1             # Size of Corpus
-                    self.indexDocs += 1     # Index of Doc
+                    self.criarBlocos(newTokens)
 
-                self.criarBlocos(tokens)
+                    cosineValue = round((math.sqrt(self.L)), 4)
+                    self.cosineNormalization(self.indexDocs, cosineValue)
+
+                    self.docsLength.append(len(newTokens))
+                    newTokens.clear()
+
+                    self.arrayDocsIds.append(index)     # array with id of Docs
+                    self.N += 1                         # Size of Corpus
+                    self.indexDocs += 1                 # Index of Doc
+
                 print("Writing block")
                 self.writeToBlock(self.numberOfBlock)
                 self.numberOfBlock += 1
-            
-        #self.writeDicionario()
-        #self.readDicionario()
-        avgdl = mean(self.tokenizer.docsLength)
-        print("avgdl:", avgdl)
+
+        self.writeDocsIds()
+        self.avgdl = mean(self.docsLength)
         self.writeDocsLength()
         self.tokenizer.docsLength = []
-        self.merger.updateColSize(self.N)                       # Update size of colection in merger function
-        tokens = []                                             # Release memory
+        self.merger.getN(self.N)                                # Update size of colection in merger function                                         # Release memory
 
-        self.createDicionario()
+        # if ranker == "bm25":
+        self.createDicionario()                                 # Dicionary with df that we will turn into idf on merge
         self.merger.merge_blocks(self.dicionario)               # Merge indexed blocks
         self.dicionario = {}                                    # Release memory
+
+    """ Normalization of weights with cosine"""
+    def cosineNormalization(self, indexDocs, cosineValue):
+        for term in self.indexed_words:
+            for doc in self.indexed_words[term]:
+                if doc == indexDocs:
+                    weight = self.indexed_words[term][indexDocs]['weight']
+                    value = weight / cosineValue
+                    self.indexed_words[term][indexDocs]['weight'] = value   # TF normalized
 
     """ Indexing of datachunks that were already processed """
     def criarBlocos(self, tokens):
@@ -105,8 +118,9 @@ class mainClass:
             docID = token[1]
             position = token[2]
 
-            if term not in self.dicionario.keys():          # Dicionario que irá servir para o IDF
-                self.dicionario[term] = str(docID)               # DF = Doc Freq. QTs = P
+            #if sys.argv[6] == 'bm25':
+            if term not in self.dicionario.keys():              # Dicionario que irá servir para o IDF
+                self.dicionario[term] = str(docID)              # DF = Doc Freq. QTs = P
             else:
                 if str(docID) not in self.dicionario[term]:
                     self.dicionario[term] += ("," + str(docID))
@@ -123,21 +137,30 @@ class mainClass:
 
                 self.indexed_words[term] = value_dict
 
+        print("self.indexed_words:", self.indexed_words)
         print("\n*DOING TF*")
 
         if sys.argv[6] == 'tfidf':
+            self.L = 0
             for term in self.indexed_words:
-                for docID in self.indexed_words[term]:
-                    #print("self.indexed_words[term]:", self.indexed_words[term][docID]['weight'])
-                    weight = self.indexed_words[term][docID]['weight']
-                    self.indexed_words[term][docID]['weight'] = round((1 + math.log10(weight)), 4)   # TF for word in document
+                for doc in self.indexed_words[term]:
+                    if doc == docID:                    # It does the TF only for the present doc
+                        #print("self.indexed_words[term]:", self.indexed_words[term][docID]['weight'])
+                        weight = self.indexed_words[term][docID]['weight']
+                        value = round((1 + math.log10(weight)), 4)
+                        self.indexed_words[term][docID]['weight'] = value   # TF for word in document
 
-        for x, v in self.indexed_words.items():
-            print(x, v)
+                        #print("value:", value, "| math.pow(value, 2):", math.pow(value, 2))
+                        self.L += math.pow(value, 2)    # Sum of all weights of a doc
+
+        print("self.L:", self.L)
+
+
+        print("self.indexed_words:", self.indexed_words)
 
     """ Sort the chunks that were already processed and indexed and write them to a block """
     def writeToBlock(self, numberOfBlock):
-
+        # i++
         print("\nWriting to block")
 
         ordered_dict = sorted(self.indexed_words.items(), key = lambda kv: kv[0])
@@ -149,24 +172,26 @@ class mainClass:
         self.indexed_words = {}
         print("\nFinished writing block")
 
+    """ Write ID of docs to a text file """
+    def writeDocsIds(self):
+            with open("extras/idDocs.txt",'w+') as f:
+                for id in self.arrayDocsIds:
+                    string = id + '\n'
+                    f.write(string)
+
     """ Write lenght of documents(doc:lenght) to text file"""
     def writeDocsLength(self):
         with open("extras/docsLength.txt",'w+') as f:
-            for line in self.tokenizer.docsLength:
+            string = str(self.avgdl) + '\n'
+            f.write(string)
+            for line in self.docsLength:
                 string = str(line) + '\n'
                 f.write(string)
 
+    """ Dicionary with DF of words"""
     def createDicionario(self):
         for x, v in self.dicionario.items():
             self.dicionario[x] = len(v.split(","))
-        #return self.dicionario
-
-    """ Load the dicitionary(term:idf) to memory """
-    def readDicionario(self):
-        with open("extras/dicionario.txt",'r') as f:
-            loadDicionario = dict([line.split() for line in f])
-
-        print("\n\nDicitonary ->", loadDicionario, "\n")
 
 
 """ Main """
@@ -183,6 +208,12 @@ if __name__ == "__main__":
               + "\nstopwords: 'yes', 'no' or pathfile to the file that u want to use"
               + "\nchunkzise: integer")
         sys.exit(1)
+
+    arrayArgs = [x for x in sys.argv]
+    print("arrayArgs:", arrayArgs)
+    with open('extras/metadados.txt', 'w') as f:
+        for item in arrayArgs:
+            f.write("%s\n" % item)
 
     mainClass = mainClass(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], int(sys.argv[5]), sys.argv[6])
 

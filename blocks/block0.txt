@@ -1,16 +1,11 @@
-abstract:{0: {'weight': 1.0, 'positions': [2]}, 4: {'weight': 1.0, 'positions': [2]}}
-azevedo:{2: {'weight': 1.0, 'positions': [2]}, 6: {'weight': 1.0, 'positions': [1]}, 8: {'weight': 1.0, 'positions': [0]}}
-com:{1: {'weight': 1.0, 'positions': [5]}, 5: {'weight': 1.0, 'positions': [3]}}
-diogo:{2: {'weight': 1.4771, 'positions': [0, 1, 7]}, 3: {'weight': 1.0, 'positions': [6]}, 6: {'weight': 1.0, 'positions': [0]}}
-idk:{0: {'weight': 1.0, 'positions': [1]}, 1: {'weight': 1.4771, 'positions': [1, 4, 6]}, 2: {'weight': 1.0, 'positions': [3]}, 3: {'weight': 1.0, 'positions': [2]}, 4: {'weight': 1.0, 'positions': [1]}, 5: {'weight': 1.4771, 'positions': [1, 2, 4]}, 6: {'weight': 1.0, 'positions': [2]}, 7: {'weight': 1.0, 'positions': [2]}, 8: {'weight': 1.0, 'positions': [3]}}
-madureira:{1: {'weight': 1.0, 'positions': [3]}, 3: {'weight': 1.0, 'positions': [1]}, 7: {'weight': 1.0, 'positions': [1]}, 9: {'weight': 1.0, 'positions': [1]}}
-nada:{7: {'weight': 1.0, 'positions': [3]}}
-nenhum:{8: {'weight': 1.0, 'positions': [4]}}
-oie:{0: {'weight': 1.0, 'positions': [0]}, 4: {'weight': 1.0, 'positions': [0]}}
+abstract:{0: {'weight': 1.0, 'positions': [2]}}
+azevedo:{2: {'weight': 1.0, 'positions': [2]}}
+com:{1: {'weight': 1.0, 'positions': [5]}}
+diogo:{2: {'weight': 1.4771, 'positions': [0, 1, 7]}}
+idk:{0: {'weight': 1.0, 'positions': [1]}, 1: {'weight': 1.4771, 'positions': [1, 4, 6]}, 2: {'weight': 1.0, 'positions': [3]}}
+madureira:{1: {'weight': 1.0, 'positions': [3]}}
+oie:{0: {'weight': 1.0, 'positions': [0]}}
 ola:{2: {'weight': 1.4771, 'positions': [5, 6, 8]}}
 palavra:{1: {'weight': 1.301, 'positions': [2, 7]}, 2: {'weight': 1.0, 'positions': [4]}}
-pos:{1: {'weight': 1.0, 'positions': [0]}, 5: {'weight': 1.0, 'positions': [0]}}
-program:{3: {'weight': 1.301, 'positions': [4, 5]}, 5: {'weight': 1.0, 'positions': [5]}, 6: {'weight': 1.0, 'positions': [4]}}
-ricardo:{3: {'weight': 1.301, 'positions': [0, 3]}, 7: {'weight': 1.0, 'positions': [0]}, 8: {'weight': 1.301, 'positions': [1, 2]}, 9: {'weight': 1.0, 'positions': [0]}}
-test:{6: {'weight': 1.0, 'positions': [3]}}
-text:{0: {'weight': 1.0, 'positions': [3]}, 4: {'weight': 1.0, 'positions': [3]}}
+pos:{1: {'weight': 1.0, 'positions': [0]}}
+text:{0: {'weight': 1.0, 'positions': [3]}}
