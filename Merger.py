@@ -41,7 +41,7 @@ class Merger:
         lines = [block_file.readline()[:-1] for block_file in block_files]
 
         print("self.N:", self.N)
-        print("dicionario:", dicionario)
+        #print("dicionario:", dicionario)
 
         mem_initial = psutil.virtual_memory().available
 
@@ -84,11 +84,9 @@ class Merger:
                     block_files.pop(min_index)
                     lines.pop(min_index)
             
-
         self.write_partition_index()
 
-        # IDF
-        for x, v in dicionario.items():
+        for x, v in dicionario.items():                         # IDF
             dicionario[x] = round((self.N / dicionario[x]),4)
 
         self.writeDicionario(dicionario)
@@ -129,8 +127,6 @@ if __name__ == "__main__":
     indexSearchEnd = time.time()
     indexSearchFinal = indexSearchEnd - indexSearchStart
 
-    with open("finalResult/finalAnswers.txt", "a") as f:
-        print("\ne) Amount of time taken to start up an index searcher, after the final index is written to disk ==",
-              indexSearchFinal, "s.", file=f)
-        print("\nThe term", sys.argv[1], "is in", len(
-            try2.contagem[0]), "documents", file=f)
+    #with open("finalResult/finalAnswers.txt", "a") as f:
+    #    print("\ne) Amount of time taken to start up an index searcher, after the final index is written to disk ==", indexSearchFinal, "s.", file=f)
+    #    print("\nThe term", sys.argv[1], "is in", len(try2.contagem[0]), "documents", file=f)

@@ -17,7 +17,7 @@ from datetime import datetime
 import statistics
 
 class search:
-    
+
     def __init__(self):
 
         self.avgdl = 0
@@ -31,23 +31,23 @@ class search:
         with open("extras/metadados.txt",'r') as f:             # Load Metadados
             self.metadados = [line[:-1] for line in f][1:]
 
-        print("self.metadados:", self.metadados)
+        #print("self.metadados:", self.metadados)
 
-        with open("files/queries1.txt",'r') as f:               # Load Queries
+        with open("files/queries.txt",'r') as f:               # Load Queries
             self.queries = [line[:-1] for line in f]
 
         print("self.queries:", self.queries)
 
         self.indexBlocks = []
-        for file in os.listdir("finalBlocks/"):                 # Save block index for search
-            print("file:", file)
+        for file in os.listdir("finalBlocks2/"):                 # Save block index for search
+            #print("file:", file)
             removeTxt = file.split('.')[0]
-            print("removeTxt:", removeTxt)
+            #print("removeTxt:", removeTxt)
             first, last = removeTxt.split('_')
-            print(first, "|", last)
+            #print(first, "|", last)
             self.indexBlocks.append(first + "_" + last)
 
-        print("\nself.indexBlocks:", self.indexBlocks, "\n")
+        #print("\nself.indexBlocks:", self.indexBlocks, "\n")
 
         min_tamanho = self.metadados[0]
         tokenizer_mode = self.metadados[1]
@@ -68,13 +68,13 @@ class search:
             self.avgdl = f.readline()[:-1]                       # Load avgdl
             self.docsLength = [line[:-1] for line in f]         # Load dl
 
-            print("avgdl:", self.avgdl)
-            print("docsLength:", self.docsLength)
+            #print("avgdl:", self.avgdl)
+            #print("docsLength:", self.docsLength)
 
         with open("extras/dicionario.txt",'r') as f:
             self.dicionario = dict([line.split() for line in f])    # Load dicionary(IDF)
 
-        print("dicionario:", self.dicionario)
+        #print("dicionario:", self.dicionario)
 
     """ loadQueries """
     def loadQueries(self, k1, b):
@@ -83,7 +83,7 @@ class search:
             queryStartTime = datetime.now()
             tfQuery = {}
             newTokens = self.tokenizer.tokenize(query, 1)
-            print("\nnewTokens:", newTokens, "\n")
+            #print("\nnewTokens:", newTokens, "\n")
 
             print("\nRanker:", self.ranker)
             if self.ranker == "tfidf":                      # If TF-IDF
@@ -96,22 +96,25 @@ class search:
                     else:
                         tfQuery[word] += 1
 
-                for tf in tfQuery:                          # Log(TF) | TF*IDF word
-                    tfNorm = (1 + math.log10(tfQuery[tf]))
-                    idf = self.dicionario[tf]
-                    value = round((tfNorm * float(idf)),4)
-                    tfQuery[tf] = value
+                #print("tfQuery:", tfQuery)
 
-                    self.L += math.pow(value, 2)    # Sum of all weights of a doc
+                for tf in tfQuery:                          # Log(TF) | TF*IDF word
+                    #print("TF:", tf)
+                    tfNorm = (1 + math.log10(tfQuery[tf]))
+                    if tf in self.dicionario.keys():
+                        idf = self.dicionario[tf]
+                        value = round((tfNorm * float(idf)),4)
+                        tfQuery[tf] = value
+
+                        self.L += math.pow(value, 2)        # Sum of all weights of a doc
+                        #print("self.L:", self.L)
 
                 cosineValue = round((math.sqrt(self.L)), 4) # Cosine Value
 
                 for tf in tfQuery:                          # Normalization with cosine
                     tfQuery[tf] /= cosineValue
 
-                #print("\ntfQuery:", tfQuery, "\n")
-
-                for term in newTokens:  # Open right file | get tf values | lnc*ltc
+                for term in newTokens:                      # Open right file | get tf values | lnc*ltc
                     word = term[0]
                     #print("\n", word)
 
@@ -121,29 +124,27 @@ class search:
                         if word >= first and word <= last:
                             tfidfDocs = {}
                             #print(word, "Its betwen", first, "and", last)
-                            with open("finalBlocks/" + first + "_" + last + ".txt", "r") as f:
+                            with open("finalBlocks2/" + first + "_" + last + ".txt", "r") as f:
                                 #print("File:", f)
                                 for line in f.readlines():
                                     #print("line:", line)
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
-                                    tfidfDocs[term_file] = ast.literal_eval(value)
+                                    if term_file == word:
+                                        tfidfDocs[term_file] = ast.literal_eval(value)
 
-                                #print("\ntfidfDocs:", tfidfDocs, "\n")
+                            #print("\ntfidfDocs:", tfidfDocs, "\n")
                                     
-                                for key, value in tfidfDocs[word].items():
-                                    tf_doc = value['weight']
-                                    #print("word:", word, "|", tfQuery[word], "|", tf_doc)
+                            for key, value in tfidfDocs[word].items():
+                                tf_doc = value['weight']
+                                #print("word:", word, "|", tfQuery[word], "|", tf_doc)
 
-                                    newScore = tfQuery[word] * tf_doc
-                                    #print("newScore:", newScore)
+                                newScore = tfQuery[word] * tf_doc
+                                #print("newScore:", newScore)
 
-                                    if key not in self.scoreDoc:
-                                        self.scoreDoc[key] = newScore
-                                    else:
-                                        self.scoreDoc[key] += newScore
-
-                            break # break out the "if word >= first and word <= last:" cycle so it doesnt open more files
-                        break
+                                if key not in self.scoreDoc:
+                                    self.scoreDoc[key] = newScore
+                                else:
+                                    self.scoreDoc[key] += newScore
 
             elif self.ranker == "bm25":                     # If BM25
             #elif self.ranker == "tfidf":
@@ -152,34 +153,38 @@ class search:
                 for term in newTokens:  # Open right file | get tf values | BM25
                     word = term[0]
 
+                    print("\nTerm:", word, "\n")
+
                     for doc in self.indexBlocks:
                         first, last = doc.split("_")
                         if word >= first and word <= last:
                             tfidfDocs = {}
-                            with open("finalBlocks/" + first + "_" + last + ".txt", "r") as f:
+                            with open("finalBlocks2/" + first + "_" + last + ".txt", "r") as f:
                                 #print("File:", f)
                                 for line in f.readlines():
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
-                                    tfidfDocs[term_file] = ast.literal_eval(value)
+                                    if term_file == word:
+                                        tfidfDocs[term_file] = ast.literal_eval(value)
 
-                                #print("\ntfidfDocs:", tfidfDocs, "\n")
+                            #print("\ntfidfDocs:", tfidfDocs, "\n")
                                     
-                                for key, value in tfidfDocs[word].items():
-                                    tf_doc = int(value['weight'])           # TF
-                                    numerator = int(((k1 + 1) * tf_doc))
-                                    dl = int(self.docsLength[key])
-                                    #print("word", word, "| key:", key, "| value", value, "| dl:", dl)
-                                    denominator = ((k1 * ((1 - b) + (b*(dl/float(self.avgdl))))) + tf_doc)
-                                    bm25Doc = (float(self.dicionario[word]) * (numerator / denominator))     # IDF is in dicionry
+                            for key, value in tfidfDocs[word].items():
+                                #print("key:", key, "| value:", value, "| value['weight']:", value['weight'])
+                                tf_doc = value['weight']             # TF
+                                #print("tf_doc", tf_doc)
+                                numerator = int(((k1 + 1) * tf_doc))
+                                dl = int(self.docsLength[key])
+                                #print("word", word, "| key:", key, "| value", value, "| dl:", dl)
+                                denominator = ((k1 * ((1 - b) + (b*(dl/float(self.avgdl))))) + tf_doc)
+                                bm25Doc = (float(self.dicionario[word]) * (numerator / denominator))     # IDF is in dicionry
+                                #print("Word:", word, "| tf_doc:", tf_doc, "| Numerator:", numerator, "| denominator:", denominator, "| bm25Doc:", bm25Doc)
 
-                                    #print("bm25Doc:", bm25Doc)
+                                # print("bm25Doc:", bm25Doc)
 
-                                    if key not in self.scoreDoc:
-                                        self.scoreDoc[key] = bm25Doc
-                                    else:
-                                        self.scoreDoc[key] += bm25Doc
-                                
-                            break # break out the "if word >= first and word <= last:" cycle so it doesnt open more files
+                                if key not in self.scoreDoc:
+                                    self.scoreDoc[key] = bm25Doc
+                                else:
+                                    self.scoreDoc[key] += bm25Doc
 
             # ------------------------------------
 
@@ -189,10 +194,10 @@ class search:
             #print("\nself.scoreDoc:", self.scoreDoc, "\n")
 
             #self.writeToFile()
-            self.scoreDoc.clear()
 
             sortedDocs = dict(sorted(self.scoreDoc.items(), key=lambda item: item[1], reverse=True))
-            print("sortedDocs:", sortedDocs)
+            #print("sortedDocs:", sortedDocs)
+            self.scoreDoc.clear()
 
             top5 = dict(itertools.islice(sortedDocs.items(), 5))
             top3 = dict(itertools.islice(top5.items(), 3))
@@ -201,7 +206,8 @@ class search:
             topXresults = { "top5": top5, "top3": top3, "top2": top2}   # 50/20/10
             self.topResults[query] = topXresults
 
-        print("\nself.topResults:", self.topResults)
+        for k, v in self.topResults.items():
+            print("\n", k, v)
 
         medianQueryLatency = statistics.median(self.queryTimes)
         with open("answers/questions.txt", "a") as f:

@@ -25,8 +25,8 @@ from turtle import pos
 class mainClass:
 
     """ Initialize some functions/variables """
-    def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker="tfidf", file='files/teste1.txt'):
-    #def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker = "tfidf", file='files/amazon_reviews_us_Digital_Video_Games_v1_00.tsv'):
+    #def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker="tfidf", file='files/teste1.txt'):
+    def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker="tfidf", file='files/testFile.tsv'):
         
         self.tokenizer = Tokenizer(min_tamanho, tokenizer_mode, steemer, stopwords_file)
         self.merger = Merger()
@@ -126,7 +126,7 @@ class mainClass:
     """ Indexing of datachunks that were already processed """
     def criarBlocos(self, tokens):
         
-        print("Indexing block")
+        #print("Indexing block")
         
         for token in tokens:
             term = token[0]
@@ -153,9 +153,8 @@ class mainClass:
                 self.indexed_words[term] = value_dict
 
         #print("self.indexed_words:", self.indexed_words)
-        print("\n*DOING TF*")
 
-        if sys.argv[6] == 'tfidf':
+        if sys.argv[6] == 'tfidf':          # Normalization of TF
             self.L = 0
             for term in self.indexed_words:
                 for doc in self.indexed_words[term]:
@@ -246,7 +245,7 @@ if __name__ == "__main__":
     tokenizer_mode = "a"
     steemer = "yes"
     stopwords_file = "yes"
-    chunksize = 3
+    chunksize = 10000
     ranker = "tfidf"
 
     if len(sys.argv) < 7:
