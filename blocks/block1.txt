@@ -1,10 +1,14 @@
-abstract:{4: {'weight': 1.0, 'positions': [2]}}
-com:{5: {'weight': 1.0, 'positions': [3]}}
-diogo:{3: {'weight': 1.0, 'positions': [6]}}
-idk:{3: {'weight': 1.0, 'positions': [2]}, 4: {'weight': 1.0, 'positions': [1]}, 5: {'weight': 1.4771, 'positions': [1, 2, 4]}}
-madureira:{3: {'weight': 1.0, 'positions': [1]}}
-oie:{4: {'weight': 1.0, 'positions': [0]}}
-pos:{5: {'weight': 1.0, 'positions': [0]}}
-program:{3: {'weight': 1.301, 'positions': [4, 5]}, 5: {'weight': 1.0, 'positions': [5]}}
-ricardo:{3: {'weight': 1.301, 'positions': [0, 3]}}
-text:{4: {'weight': 1.0, 'positions': [3]}}
+10f:{4: {'weight': 0.4082465809348847, 'positions': [0]}}
+20g:{5: {'weight': 0.40220407834935445, 'positions': [0]}}
+40d:{3: {'weight': 0.3679717397703856, 'positions': [0]}}
+abstract:{4: {'weight': 0.4082465809348847, 'positions': [4]}}
+com:{5: {'weight': 0.40220407834935445, 'positions': [4]}}
+diogo:{3: {'weight': 0.3679717397703856, 'positions': [7]}}
+idk:{3: {'weight': 0.3679717397703856, 'positions': [3]}, 4: {'weight': 0.4082465809348847, 'positions': [2]}, 5: {'weight': 0.5940956441298315, 'positions': [2, 3, 5]}}
+la_:{4: {'weight': 0.4082465809348847, 'positions': [3]}}
+madureira:{3: {'weight': 0.3679717397703856, 'positions': [2]}}
+oie:{4: {'weight': 0.4082465809348847, 'positions': [1]}}
+pos:{5: {'weight': 0.40220407834935445, 'positions': [1]}}
+program:{3: {'weight': 0.47873123344127166, 'positions': [5, 6]}, 5: {'weight': 0.40220407834935445, 'positions': [6]}}
+ricardo:{3: {'weight': 0.47873123344127166, 'positions': [1, 4]}}
+text:{4: {'weight': 0.4082465809348847, 'positions': [5]}}

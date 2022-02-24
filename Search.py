@@ -75,7 +75,7 @@ class search:
         print("dicionario:", self.dicionario)
 
     """ loadQueries """
-    def loadQueries(self, k1=1.2, b=0.75):
+    def loadQueries(self, k1, b):
 
         for query in self.queries:
             startTime = time.time()
@@ -211,7 +211,10 @@ class search:
 """ Main """
 if __name__ == "__main__":
 
+    # Default values
+    k1 = 1.2
+    b = 0.75
+
     searcher = search()
     searcher.loadToMem()
-    searcher.loadQueries()
-    # percorrer queries aqui
+    searcher.loadQueries(k1, b)

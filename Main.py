@@ -7,6 +7,8 @@
 """
 
 # Imports
+from itertools import combinations
+from re import A
 import sys
 from Tokenizer import Tokenizer         # Import of Tokenizer
 from Merger import Merger               # Import of Merger
@@ -23,7 +25,7 @@ from turtle import pos
 class mainClass:
 
     """ Initialize some functions/variables """
-    def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker = "tfidf", file='files/teste1.txt'):
+    def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker="tfidf", file='files/teste1.txt'):
     #def __init__(self, min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize=10000, ranker = "tfidf", file='files/amazon_reviews_us_Digital_Video_Games_v1_00.tsv'):
         
         self.tokenizer = Tokenizer(min_tamanho, tokenizer_mode, steemer, stopwords_file)
@@ -41,6 +43,7 @@ class mainClass:
         self.arrayDocsIds = []      # Array with ID of each Doc
         self.indexDocs = 0          # Index of docs
         self.L = 0                  # Sum of all weights of a doc
+        self.combination = ""
 
     """ Function to send chunks of data to processing """
     def generateChunks(self, reader):
@@ -67,8 +70,10 @@ class mainClass:
                 for row in chunk:
                     newTokens = []
                     index = row['review_id']
-                    appended_string = row['product_title'] + " " + \
-                        row['review_headline'] + " " + row['review_body']                # Join title, headline and body rows
+
+                    #appended_string = self.combinationIndex(row)
+
+                    appended_string = row['product_title'] + " " + row['review_headline'] + " " + row['review_body']                # Join title, headline and body rows
                     newTokens = self.tokenizer.tokenize(appended_string, self.indexDocs) # Apply tokenizer of the tokens
                     #print("\nnewTokens:", newTokens, "\n")
 
@@ -137,7 +142,7 @@ class mainClass:
 
                 self.indexed_words[term] = value_dict
 
-        print("self.indexed_words:", self.indexed_words)
+        #print("self.indexed_words:", self.indexed_words)
         print("\n*DOING TF*")
 
         if sys.argv[6] == 'tfidf':
@@ -153,10 +158,8 @@ class mainClass:
                         #print("value:", value, "| math.pow(value, 2):", math.pow(value, 2))
                         self.L += math.pow(value, 2)    # Sum of all weights of a doc
 
-        print("self.L:", self.L)
-
-
-        print("self.indexed_words:", self.indexed_words)
+        #print("self.L:", self.L)
+        #print("self.indexed_words:", self.indexed_words)
 
     """ Sort the chunks that were already processed and indexed and write them to a block """
     def writeToBlock(self, numberOfBlock):
@@ -193,13 +196,33 @@ class mainClass:
         for x, v in self.dicionario.items():
             self.dicionario[x] = len(v.split(","))
 
+    def combinationIndex(self, row):
+        if self.combination == "a":
+            appended_string = row['product_title'] + " " + row['review_headline'] + " " + row['review_body']
+        elif self.combination == "a":
+            appended_string = row['product_title'] + " " + row['review_headline']
+        elif self.combination == "c":
+            appended_string = row['review_headline'] + " " + row['review_body'] 
+        elif self.combination == "d":
+            appended_string = row['product_title'] + " " + row['review_body']
+
+        return appended_string
+            
 
 """ Main """
 if __name__ == "__main__":
 
+    # Default Values
+    min_tamanho = 3
+    tokenizer_mode = "a"
+    steemer = "yes"
+    stopwords_file = "yes"
+    chunksize = 3
+    ranker = "tfidf"
+
     if len(sys.argv) < 7:
         print("Usage: py Main.py min_tamanho_palavra(no/4) tokenizerMode(a/b) stemmer('yes/no')"
-        + "Stopwords('yes/no/filepath') chunksize(4) ranker(tfidf/bm25)"
+        + "Stopwords('yes/no/filepath') chunksize(3) ranker(tfidf/bm25)"
               
               + "\n** CHOICES **"
               + "\nmin_tamanho_palavra: Can be choosen with a number or desativacted with 'no'"
@@ -215,24 +238,12 @@ if __name__ == "__main__":
         for item in arrayArgs:
             f.write("%s\n" % item)
 
-    mainClass = mainClass(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], int(sys.argv[5]), sys.argv[6])
+    mainClass = mainClass(min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize, ranker)
 
     totalIndexingTimeStart = time.time()
     mainClass.processFiles()
 
-    """
-    print("\n\nStarging to Merge")
-    mergeStartTime = time.time()
-    mainClass.pos_index()
-    mergeEndTime = time.time()
-    print("\nFinished Merging ==", mergeEndTime - mergeStartTime, "segundos")
-    """
     totalIndexingTimeEnd = time.time()
     totalIndexingTimeFinal = totalIndexingTimeEnd - totalIndexingTimeStart
     print("Indexing Time ->", totalIndexingTimeFinal)
 
-    """
-    mainClass.printToFile(totalIndexingTimeFinal, mainClass.sizeOfDictInGb(), mainClass.pos_index2(), mainClass.BlockFilesNumber)
-    #mainClass.saveTF(mainClass.len_doc)
-    #mainClass.saveIDF()
-    """

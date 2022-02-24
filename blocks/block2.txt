@@ -1,9 +1,12 @@
-azevedo:{6: {'weight': 1.0, 'positions': [1]}, 8: {'weight': 1.0, 'positions': [0]}}
-diogo:{6: {'weight': 1.0, 'positions': [0]}}
-idk:{6: {'weight': 1.0, 'positions': [2]}, 7: {'weight': 1.0, 'positions': [2]}, 8: {'weight': 1.0, 'positions': [3]}}
-madureira:{7: {'weight': 1.0, 'positions': [1]}}
-nada:{7: {'weight': 1.0, 'positions': [3]}}
-nenhum:{8: {'weight': 1.0, 'positions': [4]}}
-program:{6: {'weight': 1.0, 'positions': [4]}}
-ricardo:{7: {'weight': 1.0, 'positions': [0]}, 8: {'weight': 1.301, 'positions': [1, 2]}}
-test:{6: {'weight': 1.0, 'positions': [3]}}
+30h:{6: {'weight': 0.4082465809348847, 'positions': [0]}}
+30j:{8: {'weight': 0.41912904983444405, 'positions': [0]}}
+40i:{7: {'weight': 0.44720719109163276, 'positions': [0]}}
+azevedo:{6: {'weight': 0.4082465809348847, 'positions': [2]}, 8: {'weight': 0.41912904983444405, 'positions': [1]}}
+diogo:{6: {'weight': 0.4082465809348847, 'positions': [1]}}
+idk:{6: {'weight': 0.4082465809348847, 'positions': [3]}, 7: {'weight': 0.44720719109163276, 'positions': [3]}, 8: {'weight': 0.41912904983444405, 'positions': [4]}}
+madureira:{7: {'weight': 0.44720719109163276, 'positions': [2]}}
+nada:{7: {'weight': 0.44720719109163276, 'positions': [4]}}
+nenhum:{8: {'weight': 0.41912904983444405, 'positions': [5]}}
+program:{6: {'weight': 0.4082465809348847, 'positions': [5]}}
+ricardo:{7: {'weight': 0.44720719109163276, 'positions': [1]}, 8: {'weight': 0.5452868938346117, 'positions': [2, 3]}}
+test:{6: {'weight': 0.4082465809348847, 'positions': [4]}}
