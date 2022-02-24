@@ -1,0 +1,8 @@
+Indexing time (without merge) = 0:00:00.025003 (hh:mm:ss.ms)
+Merge time (hh:mm:ss.ms) = 0:00:00.011999 (hh:mm:ss.ms)
+Total time (hh:mm:ss.ms) = 0:00:00.037002 (hh:mm:ss.ms)
+Total index size on disk = 0.0084 Mb.
+Vocabulary size (number of terms) = 16 terms
+Number of temporary index segments written to disk (before merging) = 4 blocks
+Amount of time taken to start up an index searcher = ???
+Median query latency = 0:00:00.002500 (hh:mm:ss.ms)

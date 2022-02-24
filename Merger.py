@@ -24,12 +24,13 @@ class Merger:
     def __init__(self):
         self.indexed_words = {}       
         self.N = 0                  # Size of corpus
+        self.newTerm = 0            # Number of terms
 
-    """"""
+    """ a """
     def getN(self, N):
         self.N = N
 
-    """"""
+    """ a """
     def merge_blocks(self, dicionario):
 
         print("\n\t\t** Merger **\n")
@@ -61,6 +62,7 @@ class Merger:
                 mem_initial = psutil.virtual_memory().available
             
             if current_term != last_term:
+                self.newTerm += 1
                 json_dict = ast.literal_eval(current_postings)
 
                 self.temp_index[current_term] = json_dict

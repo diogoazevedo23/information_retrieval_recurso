@@ -1,15 +1,11 @@
-10a:{0: {'weight': 0.4082465809348847, 'positions': [0]}}
-20b:{1: {'weight': 0.3563664872955348, 'positions': [0]}}
-30c:{2: {'weight': 0.3457814661134163, 'positions': [0]}}
-abstract:{0: {'weight': 0.4082465809348847, 'positions': [4]}}
-azevedo:{2: {'weight': 0.3457814661134163, 'positions': [3]}}
-com:{1: {'weight': 0.3563664872955348, 'positions': [6]}}
-diogo:{2: {'weight': 0.5107538035961273, 'positions': [1, 2, 8]}}
-idk:{0: {'weight': 0.4082465809348847, 'positions': [2]}, 1: {'weight': 0.5263889383842344, 'positions': [2, 5, 7]}, 2: {'weight': 0.3457814661134163, 'positions': [4]}}
-la_:{0: {'weight': 0.4082465809348847, 'positions': [3]}}
-madureira:{1: {'weight': 0.3563664872955348, 'positions': [4]}}
-oie:{0: {'weight': 0.4082465809348847, 'positions': [1]}}
-ola:{2: {'weight': 0.5107538035961273, 'positions': [6, 7, 9]}}
-palavra:{1: {'weight': 0.4636327999714907, 'positions': [3, 8]}, 2: {'weight': 0.3457814661134163, 'positions': [5]}}
-pos:{1: {'weight': 0.3563664872955348, 'positions': [1]}}
-text:{0: {'weight': 0.4082465809348847, 'positions': [5]}}
+abstract:{0: {'weight': 0.5, 'positions': [2]}}
+azevedo:{2: {'weight': 0.36851415094339623, 'positions': [2]}}
+com:{1: {'weight': 0.38140279949654826, 'positions': [5]}}
+diogo:{2: {'weight': 0.5443322523584906, 'positions': [0, 1, 7]}}
+idk:{0: {'weight': 0.5, 'positions': [1]}, 1: {'weight': 0.5633700751363515, 'positions': [1, 4, 6]}, 2: {'weight': 0.36851415094339623, 'positions': [3]}}
+madureira:{1: {'weight': 0.38140279949654826, 'positions': [3]}}
+oie:{0: {'weight': 0.5, 'positions': [0]}}
+ola:{2: {'weight': 0.5443322523584906, 'positions': [5, 6, 8]}}
+palavra:{1: {'weight': 0.4962050421450093, 'positions': [2, 7]}, 2: {'weight': 0.36851415094339623, 'positions': [4]}}
+pos:{1: {'weight': 0.38140279949654826, 'positions': [0]}}
+text:{0: {'weight': 0.5, 'positions': [3]}}

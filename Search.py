@@ -13,10 +13,11 @@ import os
 import re
 import math
 import itertools        # Slice dictionary for top results
-import time
-from statistics import mean
+from datetime import datetime
+import statistics
 
 class search:
+    
     def __init__(self):
 
         self.avgdl = 0
@@ -25,6 +26,7 @@ class search:
         self.dicionario = {}
         self.scoreDoc = {}
         self.L = 0              # Sum of all weights of a doc
+        self.queryTimes = []
 
         with open("extras/metadados.txt",'r') as f:             # Load Metadados
             self.metadados = [line[:-1] for line in f][1:]
@@ -78,7 +80,7 @@ class search:
     def loadQueries(self, k1, b):
 
         for query in self.queries:
-            startTime = time.time()
+            queryStartTime = datetime.now()
             tfQuery = {}
             newTokens = self.tokenizer.tokenize(query, 1)
             print("\nnewTokens:", newTokens, "\n")
@@ -181,7 +183,14 @@ class search:
 
             # ------------------------------------
 
+            queryTime = (datetime.now() - queryStartTime)
+            self.queryTimes.append(queryTime)
+
             #print("\nself.scoreDoc:", self.scoreDoc, "\n")
+
+            #self.writeToFile()
+            self.scoreDoc.clear()
+
             sortedDocs = dict(sorted(self.scoreDoc.items(), key=lambda item: item[1], reverse=True))
             print("sortedDocs:", sortedDocs)
 
@@ -192,12 +201,12 @@ class search:
             topXresults = { "top5": top5, "top3": top3, "top2": top2}   # 50/20/10
             self.topResults[query] = topXresults
 
-            # array com os tempos
-            # array.append(finalTime)
-            # mean(array)
-            finalTime = (time.time() - startTime)
-
         print("\nself.topResults:", self.topResults)
+
+        medianQueryLatency = statistics.median(self.queryTimes)
+        with open("answers/questions.txt", "a") as f:
+            f.write("\nMedian query latency = {} (hh:mm:ss.ms)" .format(medianQueryLatency))
+
 
         """                                     # Open Docs id for printing results
         with open("extras/idDocs.txt") as f:
@@ -206,7 +215,7 @@ class search:
         for key in sortedDocs:
             print("Best:", idDocs[key])
         """
-                      
+
 
 """ Main """
 if __name__ == "__main__":

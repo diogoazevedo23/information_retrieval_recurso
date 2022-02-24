@@ -8,11 +8,11 @@
 
 # Imports
 from itertools import combinations
-from re import A
 import sys
 from Tokenizer import Tokenizer         # Import of Tokenizer
 from Merger import Merger               # Import of Merger
 import time                             # Time functions
+from datetime import datetime           # Time functions
 from collections import OrderedDict     # Order dictionaries
 import csv                              # Reading CSV files
 import psutil                           # Checks memory
@@ -45,6 +45,11 @@ class mainClass:
         self.L = 0                  # Sum of all weights of a doc
         self.combination = ""
 
+        # Questions
+        self.indexingTime = 0       # Time taken to index
+        self.mergeTime = 0          # Time taken to merge
+        self.indexSizeOnDisk = 0    # Disk usage on index
+
     """ Function to send chunks of data to processing """
     def generateChunks(self, reader):
         chunk = []
@@ -57,6 +62,7 @@ class mainClass:
 
     """ Processing of data with SPIMI implementation """
     def processFiles(self):
+        startIndexing = datetime.now()
 
         with open(self.file, newline='', encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile, delimiter="\t", quoting=csv.QUOTE_NONE)    # Reading csv/tsv files
@@ -77,6 +83,7 @@ class mainClass:
                     newTokens = self.tokenizer.tokenize(appended_string, self.indexDocs) # Apply tokenizer of the tokens
                     #print("\nnewTokens:", newTokens, "\n")
 
+                    self.calculateDictionarySize()
                     self.criarBlocos(newTokens)
 
                     cosineValue = round((math.sqrt(self.L)), 4)
@@ -92,16 +99,19 @@ class mainClass:
                 print("Writing block")
                 self.writeToBlock(self.numberOfBlock)
                 self.numberOfBlock += 1
+        
+        self.indexingTime = (datetime.now() - startIndexing)
 
         self.writeDocsIds()
         self.avgdl = mean(self.docsLength)
         self.writeDocsLength()
         self.tokenizer.docsLength = []
-        self.merger.getN(self.N)                                # Update size of colection in merger function                                         # Release memory
+        self.merger.getN(self.N)                                # Update size of colection in merger function                                        # Release memory
 
-        # if ranker == "bm25":
         self.createDicionario()                                 # Dicionary with df that we will turn into idf on merge
+        startMerge = datetime.now()
         self.merger.merge_blocks(self.dicionario)               # Merge indexed blocks
+        self.mergeTime = (datetime.now() - startMerge)          # Time taken to merge
         self.dicionario = {}                                    # Release memory
 
     """ Normalization of weights with cosine"""
@@ -196,6 +206,7 @@ class mainClass:
         for x, v in self.dicionario.items():
             self.dicionario[x] = len(v.split(","))
 
+    """ Combinations to index ('product_title' + 'review_headline' + 'review_body') """
     def combinationIndex(self, row):
         if self.combination == "a":
             appended_string = row['product_title'] + " " + row['review_headline'] + " " + row['review_body']
@@ -207,7 +218,25 @@ class mainClass:
             appended_string = row['product_title'] + " " + row['review_body']
 
         return appended_string
-            
+
+    """ We need to calculate in this way, since python only counts the size of keys and not the nested variables """
+    def calculateDictionarySize(self):
+        for key, value in self.indexed_words.items():
+            self.indexSizeOnDisk += sys.getsizeof(value)
+
+        self.indexSizeOnDisk + sys.getsizeof(self.indexed_words)
+
+    """ Answer Questions """
+    def answerQuestions(self):
+        print("\n\n\t**Questions:**\n") 
+        with open("answers/questions.txt", "w") as f:
+                f.write("Indexing time (without merge) = {} (hh:mm:ss.ms)" .format(self.indexingTime))
+                f.write("\nMerge time (hh:mm:ss.ms) = {} (hh:mm:ss.ms)" .format(self.mergeTime))
+                f.write("\nTotal time (hh:mm:ss.ms) = {} (hh:mm:ss.ms)" .format((self.indexingTime + self.mergeTime)))
+                f.write("\nTotal index size on disk = %.4f Mb." % (self.indexSizeOnDisk / 1024 / 1024))
+                f.write("\nVocabulary size (number of terms) = {} terms" .format(self.merger.newTerm))
+                f.write("\nNumber of temporary index segments written to disk (before merging) = {} blocks" .format(self.numberOfBlock))
+                f.write("\nAmount of time taken to start up an index searcher = ???")
 
 """ Main """
 if __name__ == "__main__":
@@ -238,12 +267,8 @@ if __name__ == "__main__":
         for item in arrayArgs:
             f.write("%s\n" % item)
 
-    mainClass = mainClass(min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize, ranker)
+    mainclass = mainClass(min_tamanho, tokenizer_mode, steemer, stopwords_file, chunksize, ranker)
 
-    totalIndexingTimeStart = time.time()
-    mainClass.processFiles()
-
-    totalIndexingTimeEnd = time.time()
-    totalIndexingTimeFinal = totalIndexingTimeEnd - totalIndexingTimeStart
-    print("Indexing Time ->", totalIndexingTimeFinal)
+    mainclass.processFiles()
+    mainclass.answerQuestions()
 
