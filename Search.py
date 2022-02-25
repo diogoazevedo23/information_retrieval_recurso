@@ -42,15 +42,12 @@ class search:
         with open("files/queries1.txt",'r') as f:               # Load Queries
             self.queries = [line[:-1] for line in f]
 
-        print("self.queries:", self.queries)
+        #print("self.queries:", self.queries)
 
         self.indexBlocks = []
         for file in os.listdir("finalBlocks/"):                 # Save block index for search
-            #print("file:", file)
             removeTxt = file.split('.')[0]
-            #print("removeTxt:", removeTxt)
             first, last = removeTxt.split('_')
-            #print(first, "|", last)
             self.indexBlocks.append(first + "_" + last)
 
         #print("\nself.indexBlocks:", self.indexBlocks, "\n")
@@ -58,11 +55,11 @@ class search:
         with open("extras/idDocs.txt") as f:        # Open Docs id for printing results
             self.idDocs = [line[:-1] for line in f]
 
-        min_tamanho = self.metadados[0]
-        tokenizer_mode = self.metadados[1]
-        steemer = self.metadados[2]
-        stopwords_file = self.metadados[3]
-        self.ranker = self.metadados[5]                         # tfidf / bm25
+        min_tamanho = self.metadados[1]
+        tokenizer_mode = self.metadados[2]
+        steemer = self.metadados[3]
+        stopwords_file = self.metadados[4]
+        self.ranker = self.metadados[6]                         # tfidf / bm25
 
         self.tokenizer = Tokenizer(min_tamanho, tokenizer_mode, steemer, stopwords_file)
 
