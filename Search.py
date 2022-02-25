@@ -9,6 +9,7 @@
 # Imports
 from Tokenizer import Tokenizer         # Import of Tokenizer
 import ast
+import pandas as pd
 import getopt
 import sys
 import os
@@ -33,9 +34,10 @@ class search:
         self.scoreDoc = {}
         self.L = 0              # Sum of all weights of a doc
         self.queryTimes = []
+        self.finaltime = 0      # Just to answer question about index searcher
 
         with open("extras/metadados.txt",'r') as f:             # Load Metadados
-            self.metadados = [line[:-1] for line in f][1:]
+            self.metadados = [line[:-1] for line in f]
 
         #print("self.metadados:", self.metadados)
 
@@ -65,6 +67,7 @@ class search:
 
         self.cleanQueries = {}
         self.topResults = {}
+        self.metricsDict = {}
 
     """ loadToMem """
     def loadToMem(self):
@@ -72,7 +75,7 @@ class search:
         #if self.ranker == "bm25":
         with open("extras/docsLength.txt",'r') as f:
             self.avgdl = f.readline()[:-1]                       # Load avgdl
-            self.docsLength = [line[:-1] for line in f]         # Load dl
+            self.docsLength = [line[:-1] for line in f]          # Load dl
 
             #print("avgdl:", self.avgdl)
             #print("docsLength:", self.docsLength)
@@ -85,10 +88,10 @@ class search:
     """ loadQueries """
     def loadQueries(self):
 
-        for query in self.queries:
+        for query in self.queries:                          # For each query
             queryStartTime = datetime.now()
             tfQuery = {}
-            newTokens = self.tokenizer.tokenize(query, 1)
+            newTokens = self.tokenizer.tokenize(query, 1)   # Tokenize query
             #print("\nnewTokens:", newTokens, "\n")
 
             print("\nRanker:", self.ranker)
@@ -124,9 +127,9 @@ class search:
                     word = term[0]
                     #print("\n", word)
 
-                    #indexSearcherTime = datetime.now()
+                    indexSearcherTime = datetime.now()
 
-                    for doc in self.indexBlocks:
+                    for doc in self.indexBlocks:            # Choose the correct file
                         first, last = doc.split("_")
                         #print(first, "|", last)
                         if word >= first and word <= last:
@@ -138,13 +141,13 @@ class search:
                                     #print("line:", line)
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
                                     if term_file == word:
-                                        tfidfDocs[term_file] = ast.literal_eval(value)
+                                        tfidfDocs[term_file] = ast.literal_eval(value)  # Get the correct posting lists
 
-                                        #finaltime = indexSearcherTime - datetime.now()
+                                        self.finaltime = datetime.now() - indexSearcherTime
 
                             #print("\ntfidfDocs:", tfidfDocs, "\n")
                                     
-                            for key, value in tfidfDocs[word].items():
+                            for key, value in tfidfDocs[word].items():      # Calculate the score
                                 tf_doc = value['weight']
                                 #print("word:", word, "|", tfQuery[word], "|", tf_doc)
 
@@ -172,7 +175,7 @@ class search:
 
                     #print("\nTerm:", word, "\n")
 
-                    for doc in self.indexBlocks:
+                    for doc in self.indexBlocks:            # Open right file
                         first, last = doc.split("_")
                         if word >= first and word <= last:
                             tfidfDocs = {}
@@ -181,7 +184,7 @@ class search:
                                 for line in f.readlines():
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
                                     if term_file == word:
-                                        tfidfDocs[term_file] = ast.literal_eval(value)
+                                        tfidfDocs[term_file] = ast.literal_eval(value)  # Get postings with tf value
 
                             #print("\ntfidfDocs:", tfidfDocs, "\n")
                                     
@@ -234,19 +237,26 @@ class search:
             topXresults = { "top5": top5, "top3": top3, "top2": top2}   # 50/20/10
             self.topResults[query] = topXresults
 
-        for k, v in self.topResults.items():
-            print("\n", k, v)
+        with open("answers/topResults.txt", "w") as f:
+            for k, v in self.topResults.items():
+                f.write("Query:" + str(k) + "\n")
+                for a, b in v.items():
+                    f.write(str(a) + "\n")
+                    f.write(str(b) + "\n")
+                f.write("\n")
 
         self.medianQueryLatency(self.queryTimes)    # Write to file median query latency 
 
+    """ Calculate the median query latency and print to file question"""
     def medianQueryLatency(self, queryTimes):
         mQL = statistics.median(queryTimes)
         with open("answers/questions.txt", "a") as f:
+            f.write("\nAmount of time taken to start up an index searcher = {} (hh:mm:ss.ms)" .format(self.finaltime))
             f.write("\nMedian query latency = {} (hh:mm:ss.ms)" .format(mQL))
 
+    """ Do the metrics """
     def metrics(self):
         arrDict = {}
-        metricsDict = {}
 
         with open('files/queries.relevance1.txt', 'r') as csvfile:
             csvReader = csv.reader(csvfile, delimiter='\t')
@@ -306,13 +316,23 @@ class search:
                     arrayMeasures.update({"fMeasure": fMeasure})
                     arrayMeasures.update({"averagePrecision": averagePrecision})
 
-                    if key not in metricsDict:
-                        metricsDict.update({key: {top: arrayMeasures}})
+                    if key not in self.metricsDict:
+                        self.metricsDict.update({key: {top: arrayMeasures}})
                     else:
-                        if a not in metricsDict[key]:
-                            metricsDict[key].update({top: arrayMeasures})
+                        if a not in self.metricsDict[key]:
+                            self.metricsDict[key].update({top: arrayMeasures})
 
-        print("\nmetricsDict:", metricsDict)
+        print("\nmetricsDict:", self.metricsDict)
+
+    """ Print metrics to file """
+    def topMetrics(self):
+        df = pd.DataFrame(self.metricsDict).T
+        df.fillna(0, inplace=True)
+
+        with open('answers/metrics.txt', 'w') as f:
+            dfAsString = df.to_string(header=True, index=True)
+            f.write(dfAsString)
+            f.write("\n")
 
 """ Main """
 if __name__ == "__main__":
@@ -355,3 +375,4 @@ if __name__ == "__main__":
     searcher.loadToMem()
     searcher.loadQueries()
     searcher.metrics()
+    searcher.topMetrics()

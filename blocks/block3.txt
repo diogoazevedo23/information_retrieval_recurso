@@ -1,0 +1,14 @@
+abstract:{10: {'weight': 0.44720719109163276, 'positions': [3]}}
+azevedo:{12: {'weight': 0.36851415094339623, 'positions': [2]}}
+com:{11: {'weight': 0.38140279949654826, 'positions': [5]}}
+diogo:{12: {'weight': 0.5443322523584906, 'positions': [0, 1, 7]}, 13: {'weight': 0.3957418180379121, 'positions': [6]}}
+idk:{10: {'weight': 0.44720719109163276, 'positions': [2]}, 11: {'weight': 0.5633700751363515, 'positions': [1, 4, 6]}, 12: {'weight': 0.36851415094339623, 'positions': [3]}, 13: {'weight': 0.3957418180379121, 'positions': [2]}}
+madureira:{11: {'weight': 0.38140279949654826, 'positions': [3]}, 13: {'weight': 0.3957418180379121, 'positions': [1]}}
+obama:{10: {'weight': 0.44720719109163276, 'positions': [0]}}
+oie:{10: {'weight': 0.44720719109163276, 'positions': [1]}}
+ola:{12: {'weight': 0.5443322523584906, 'positions': [5, 6, 8]}}
+palavra:{11: {'weight': 0.4962050421450093, 'positions': [2, 7]}, 12: {'weight': 0.36851415094339623, 'positions': [4]}}
+pos:{11: {'weight': 0.38140279949654826, 'positions': [0]}}
+program:{13: {'weight': 0.5148601052673236, 'positions': [4, 5]}}
+ricardo:{13: {'weight': 0.5148601052673236, 'positions': [0, 3]}}
+text:{10: {'weight': 0.44720719109163276, 'positions': [4]}}

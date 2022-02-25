@@ -20,25 +20,24 @@ from statistics import mean
 
 class Merger:
 
-    """"""
     def __init__(self):
         self.indexed_words = {}       
         self.N = 0                  # Size of corpus
         self.newTerm = 0            # Number of terms
 
-    """ a """
+    """ Size of Collection """
     def getN(self, N):
         self.N = N
 
-    """ a """
+    """ Merge blocks """
     def merge_blocks(self, dicionario):
 
         print("\n\t\t** Merger **\n")
         self.temp_index = {}
         last_term = ""
         block_files = os.listdir("blocks/")
-        block_files = [open("blocks/" + block_file) for block_file in block_files]
-        lines = [block_file.readline()[:-1] for block_file in block_files]
+        block_files = [open("blocks/" + block_file) for block_file in block_files]  # Open block files
+        lines = [block_file.readline()[:-1] for block_file in block_files]          # Read 1 line of all docs
 
         print("self.N:", self.N)
         #print("dicionario:", dicionario)
@@ -76,10 +75,10 @@ class Merger:
                 new_val = {**json_dict, **tmp_dict}                 # merge the two dicts with the same word
                 self.temp_index[current_term] = new_val
 
-            lines[min_index] = block_files[min_index].readline()[:-1]
+            lines[min_index] = block_files[min_index].readline()[:-1]   # Read next lines
 
             
-            if lines[min_index] == "":
+            if lines[min_index] == "":              # pop blank line (line that was read)
                     block_files[min_index].close()
                     block_files.pop(min_index)
                     lines.pop(min_index)
@@ -91,21 +90,21 @@ class Merger:
 
         self.writeDicionario(dicionario)
 
-    """"""
+    """ Write block to file """
     def write_partition_index(self):
         ordered_dict = sorted(self.temp_index.items(), key = lambda kv: kv[0])
         first = ordered_dict[0][0]
         last = ordered_dict[-1][0]
-        with open("FULL/finalBlocks2/" + f"{first}_{last}.txt",'w+') as f:
+        with open("finalBlocks/" + f"{first}_{last}.txt",'w+') as f:
             for term, posting in ordered_dict:
                 string = f"{term}:{str(posting)}\n"
                 f.write(string)
         self.temp_index = {}
         f.close()
 
-    """ Write dicionary(term:idf) to text file"""
+    """ Write dicionary(term:idf) to text file """
     def writeDicionario(self, dicionario):
-        with open("FULL/extras/dicionario.txt",'w+') as f:
+        with open("extras/dicionario.txt",'w+') as f:
             for term, value in dicionario.items():
                 string = term + ' ' + str(value) + '\n'
                 f.write(string)
@@ -114,19 +113,4 @@ class Merger:
 """ Main """
 if __name__ == "__main__":
 
-    if len(sys.argv) < 2:
-        print("Usage: py teste1.py term('diogo')"
-              + "\n** CHOICES **"
-              + "\nterm = term you need to search on index")
-        sys.exit(1)
-
-    try2 = Merger()
-
-    indexSearchStart = time.time()
-    try2.index_searcher(sys.argv[1])
-    indexSearchEnd = time.time()
-    indexSearchFinal = indexSearchEnd - indexSearchStart
-
-    #with open("finalResult/finalAnswers.txt", "a") as f:
-    #    print("\ne) Amount of time taken to start up an index searcher, after the final index is written to disk ==", indexSearchFinal, "s.", file=f)
-    #    print("\nThe term", sys.argv[1], "is in", len(try2.contagem[0]), "documents", file=f)
+    print("Main")

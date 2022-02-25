@@ -50,9 +50,9 @@ class mainClass:
         self.mergeTime = 0              # Time taken to merge
         self.indexSizeOnDisk = 0        # Disk usage on index
 
-        self.block_files = os.listdir("files/tsv/")
+        self.block_files = os.listdir("files/tsv/test/")
         print("self.block_files:", self.block_files)
-        self.block_files = [("files/tsv/" + block_file) for block_file in self.block_files if block_file.endswith(".tsv")]
+        self.block_files = [("files/tsv/test/" + block_file) for block_file in self.block_files if block_file.endswith(".tsv")]
         print("self.block_files:", self.block_files)
 
     """ Function to send chunks of data to processing """
@@ -186,11 +186,10 @@ class mainClass:
 
     """ Sort the chunks that were already processed and indexed and write them to a block """
     def writeToBlock(self, numberOfBlock):
-        # i++
         print("\nWriting to block")
 
         ordered_dict = sorted(self.indexed_words.items(), key = lambda kv: kv[0])
-        with open("FULL/blocks/block" + str(numberOfBlock) + ".txt",'w') as f:
+        with open("blocks/block" + str(numberOfBlock) + ".txt",'w') as f:
             for term, value in ordered_dict:
                 string = term + ':' + str(value) + '\n'
                 f.write(string)
@@ -200,14 +199,14 @@ class mainClass:
 
     """ Write ID of docs to a text file """
     def writeDocsIds(self):
-            with open("FULL/extras/idDocs.txt",'w') as f:
-                for id in self.arrayDocsIds:
-                    string = id + '\n'
-                    f.write(string)
+        with open("extras/idDocs.txt",'w') as f:
+            for id in self.arrayDocsIds:
+                string = id + '\n'
+                f.write(string)
 
     """ Write lenght of documents(doc:lenght) to text file"""
     def writeDocsLength(self):
-        with open("FULL/extras/docsLength.txt",'w') as f:
+        with open("extras/docsLength.txt",'w') as f:
             string = str(self.avgdl) + '\n'
             f.write(string)
             for line in self.docsLength:
@@ -229,14 +228,13 @@ class mainClass:
     """ Answer Questions """
     def answerQuestions(self):
         print("\n\n\t**Questions:**\n") 
-        with open("FULL/answers/questions.txt", "w") as f:
+        with open("answers/questions.txt", "w") as f:
                 f.write("Indexing time (without merge) = {} (hh:mm:ss.ms)" .format(self.indexingTime))
                 f.write("\nMerge time (hh:mm:ss.ms) = {} (hh:mm:ss.ms)" .format(self.mergeTime))
                 f.write("\nTotal time (hh:mm:ss.ms) = {} (hh:mm:ss.ms)" .format((self.indexingTime + self.mergeTime)))
                 f.write("\nTotal index size on disk = %.4f Mb." % (self.indexSizeOnDisk / 1024 / 1024))
                 f.write("\nVocabulary size (number of terms) = {} terms" .format(self.merger.newTerm))
                 f.write("\nNumber of temporary index segments written to disk (before merging) = {} blocks" .format(self.numberOfBlock))
-                f.write("\nAmount of time taken to start up an index searcher = ???")
 
 """ Main """
 if __name__ == "__main__":

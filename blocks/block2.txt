@@ -1,0 +1,5 @@
+azevedo:{8: {'weight': 0.46163789123811283, 'positions': [0]}}
+idk:{8: {'weight': 0.46163789123811283, 'positions': [3]}}
+madureira:{9: {'weight': 0.7071135624381276, 'positions': [1]}}
+nenhum:{8: {'weight': 0.46163789123811283, 'positions': [4]}}
+ricardo:{8: {'weight': 0.6005908965007848, 'positions': [1, 2]}, 9: {'weight': 0.7071135624381276, 'positions': [0]}}

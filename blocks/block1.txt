@@ -1,0 +1,13 @@
+abstract:{4: {'weight': 0.5, 'positions': [2]}}
+azevedo:{6: {'weight': 0.44720719109163276, 'positions': [1]}}
+com:{5: {'weight': 0.4392901071867861, 'positions': [3]}}
+diogo:{6: {'weight': 0.44720719109163276, 'positions': [0]}}
+idk:{4: {'weight': 0.5, 'positions': [1]}, 5: {'weight': 0.6488754173256018, 'positions': [1, 2, 4]}, 6: {'weight': 0.44720719109163276, 'positions': [2]}, 7: {'weight': 0.5, 'positions': [2]}}
+madureira:{7: {'weight': 0.5, 'positions': [1]}}
+nada:{7: {'weight': 0.5, 'positions': [3]}}
+oie:{4: {'weight': 0.5, 'positions': [0]}}
+pos:{5: {'weight': 0.4392901071867861, 'positions': [0]}}
+program:{5: {'weight': 0.4392901071867861, 'positions': [5]}, 6: {'weight': 0.44720719109163276, 'positions': [4]}}
+ricardo:{7: {'weight': 0.5, 'positions': [0]}}
+test:{6: {'weight': 0.44720719109163276, 'positions': [3]}}
+text:{4: {'weight': 0.5, 'positions': [3]}}
