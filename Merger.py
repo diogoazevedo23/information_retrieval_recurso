@@ -96,7 +96,7 @@ class Merger:
         ordered_dict = sorted(self.temp_index.items(), key = lambda kv: kv[0])
         first = ordered_dict[0][0]
         last = ordered_dict[-1][0]
-        with open("finalBlocks2/" + f"{first}_{last}.txt",'w+') as f:
+        with open("FULL/finalBlocks2/" + f"{first}_{last}.txt",'w+') as f:
             for term, posting in ordered_dict:
                 string = f"{term}:{str(posting)}\n"
                 f.write(string)
@@ -105,7 +105,7 @@ class Merger:
 
     """ Write dicionary(term:idf) to text file"""
     def writeDicionario(self, dicionario):
-        with open("extras/dicionario.txt",'w+') as f:
+        with open("FULL/extras/dicionario.txt",'w+') as f:
             for term, value in dicionario.items():
                 string = term + ' ' + str(value) + '\n'
                 f.write(string)

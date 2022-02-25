@@ -1,7 +1,0 @@
-Main.py
-3
-a
-yes
-yes
-3
-tfidf

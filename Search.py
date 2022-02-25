@@ -9,17 +9,23 @@
 # Imports
 from Tokenizer import Tokenizer         # Import of Tokenizer
 import ast
+import getopt
+import sys
 import os
 import re
 import math
 import itertools        # Slice dictionary for top results
 from datetime import datetime
 import statistics
+import csv
 
 class search:
 
-    def __init__(self):
+    def __init__(self, k1, b, boost):
 
+        self.k1 = k1
+        self.b = b
+        self.boost = boost
         self.avgdl = 0
         self.metadados = []
         self.docsLength = []
@@ -33,13 +39,13 @@ class search:
 
         #print("self.metadados:", self.metadados)
 
-        with open("files/queries.txt",'r') as f:               # Load Queries
+        with open("files/queries1.txt",'r') as f:               # Load Queries
             self.queries = [line[:-1] for line in f]
 
         print("self.queries:", self.queries)
 
         self.indexBlocks = []
-        for file in os.listdir("finalBlocks2/"):                 # Save block index for search
+        for file in os.listdir("finalBlocks/"):                 # Save block index for search
             #print("file:", file)
             removeTxt = file.split('.')[0]
             #print("removeTxt:", removeTxt)
@@ -48,6 +54,9 @@ class search:
             self.indexBlocks.append(first + "_" + last)
 
         #print("\nself.indexBlocks:", self.indexBlocks, "\n")
+        
+        with open("extras/idDocs.txt") as f:        # Open Docs id for printing results
+            self.idDocs = [line[:-1] for line in f]
 
         min_tamanho = self.metadados[0]
         tokenizer_mode = self.metadados[1]
@@ -77,7 +86,7 @@ class search:
         #print("dicionario:", self.dicionario)
 
     """ loadQueries """
-    def loadQueries(self, k1, b):
+    def loadQueries(self):
 
         for query in self.queries:
             queryStartTime = datetime.now()
@@ -87,7 +96,6 @@ class search:
 
             print("\nRanker:", self.ranker)
             if self.ranker == "tfidf":                      # If TF-IDF
-            #if self.ranker == "bm25":
 
                 for key in newTokens:                       # TF word
                     word = key[0]
@@ -114,9 +122,12 @@ class search:
                 for tf in tfQuery:                          # Normalization with cosine
                     tfQuery[tf] /= cosineValue
 
+                boostCount = {}
                 for term in newTokens:                      # Open right file | get tf values | lnc*ltc
                     word = term[0]
                     #print("\n", word)
+
+                    #indexSearcherTime = datetime.now()
 
                     for doc in self.indexBlocks:
                         first, last = doc.split("_")
@@ -124,13 +135,15 @@ class search:
                         if word >= first and word <= last:
                             tfidfDocs = {}
                             #print(word, "Its betwen", first, "and", last)
-                            with open("finalBlocks2/" + first + "_" + last + ".txt", "r") as f:
+                            with open("finalBlocks/" + first + "_" + last + ".txt", "r") as f:
                                 #print("File:", f)
                                 for line in f.readlines():
                                     #print("line:", line)
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
                                     if term_file == word:
                                         tfidfDocs[term_file] = ast.literal_eval(value)
+
+                                        #finaltime = indexSearcherTime - datetime.now()
 
                             #print("\ntfidfDocs:", tfidfDocs, "\n")
                                     
@@ -142,24 +155,31 @@ class search:
                                 #print("newScore:", newScore)
 
                                 if key not in self.scoreDoc:
+                                    boostCount[key] = 1
                                     self.scoreDoc[key] = newScore
                                 else:
+                                    boostCount[key] += 1
                                     self.scoreDoc[key] += newScore
 
-            elif self.ranker == "bm25":                     # If BM25
-            #elif self.ranker == "tfidf":
-                print("bm25")
+                if self.boost == "on":
+                    for k, v in boostCount.items():             # Boost
+                        if boostCount[k] >= len(newTokens):     # If it has the terms of the query
+                            value = (0.1 * boostCount[k]) / int(self.docsLength[k])
+                            self.scoreDoc[k] += value
 
+            elif self.ranker == "bm25":                     # If BM25
+                
+                boostCount = {}
                 for term in newTokens:  # Open right file | get tf values | BM25
                     word = term[0]
 
-                    print("\nTerm:", word, "\n")
+                    #print("\nTerm:", word, "\n")
 
                     for doc in self.indexBlocks:
                         first, last = doc.split("_")
                         if word >= first and word <= last:
                             tfidfDocs = {}
-                            with open("finalBlocks2/" + first + "_" + last + ".txt", "r") as f:
+                            with open("finalBlocks/" + first + "_" + last + ".txt", "r") as f:
                                 #print("File:", f)
                                 for line in f.readlines():
                                     term_file,value = re.split(':', line.rstrip('\n'), maxsplit=1)
@@ -182,9 +202,17 @@ class search:
                                 # print("bm25Doc:", bm25Doc)
 
                                 if key not in self.scoreDoc:
+                                    boostCount[key] = 1
                                     self.scoreDoc[key] = bm25Doc
                                 else:
+                                    boostCount[key] += 1
                                     self.scoreDoc[key] += bm25Doc
+
+                if self.boost == "on":
+                    for k, v in boostCount.items():             # Boost
+                        if boostCount[k] >= len(newTokens):     # If it has the terms of the query
+                            value = (0.1 * boostCount[k]) / int(self.docsLength[k])
+                            self.scoreDoc[k] += value
 
             # ------------------------------------
 
@@ -193,15 +221,18 @@ class search:
 
             #print("\nself.scoreDoc:", self.scoreDoc, "\n")
 
-            #self.writeToFile()
-
             sortedDocs = dict(sorted(self.scoreDoc.items(), key=lambda item: item[1], reverse=True))
-            #print("sortedDocs:", sortedDocs)
             self.scoreDoc.clear()
+            top5 = {}
 
-            top5 = dict(itertools.islice(sortedDocs.items(), 5))
-            top3 = dict(itertools.islice(top5.items(), 3))
-            top2 = dict(itertools.islice(top3.items(), 2))
+            i = 0
+            while i < 5:    # Get Top 50 and the id of Doc
+                for k, v in sortedDocs.items():
+                    top5[self.idDocs[k]] = v
+                    i += 1
+
+            top3 = dict(itertools.islice(top5.items(), 3))      # Top 20
+            top2 = dict(itertools.islice(top3.items(), 2))      # Top 10
 
             topXresults = { "top5": top5, "top3": top3, "top2": top2}   # 50/20/10
             self.topResults[query] = topXresults
@@ -209,19 +240,82 @@ class search:
         for k, v in self.topResults.items():
             print("\n", k, v)
 
-        medianQueryLatency = statistics.median(self.queryTimes)
+        self.medianQueryLatency(self.queryTimes)    # Write to file median query latency 
+
+    def medianQueryLatency(self, queryTimes):
+        mQL = statistics.median(queryTimes)
         with open("answers/questions.txt", "a") as f:
-            f.write("\nMedian query latency = {} (hh:mm:ss.ms)" .format(medianQueryLatency))
+            f.write("\nMedian query latency = {} (hh:mm:ss.ms)" .format(mQL))
 
+    def metrics(self):
+        arrDict = {}
+        metricsDict = {}
 
-        """                                     # Open Docs id for printing results
-        with open("extras/idDocs.txt") as f:
-            idDocs = [line[:-1] for line in f]
+        with open('files/queries.relevance1.txt', 'r') as csvfile:
+            csvReader = csv.reader(csvfile, delimiter='\t')
+            for row in csvReader:
+                if not (row):
+                    continue
+                else:
+                    if row[0].startswith("Q:"):
+                        key = row[0]
+                        newKey = str(key.replace('Q:', ''))
+                        arrDict.update({newKey: {}})
+                    else:
+                        arrDict[newKey].update({row[0]: row[1]})
 
-        for key in sortedDocs:
-            print("Best:", idDocs[key])
-        """
+        #print("\narrDict:", arrDict)
+        #print("\nself.topResults:", self.topResults, "\n")
 
+        for key, value in arrDict.items():
+            #print(key)
+            tp = 0
+            fp = 0
+            for a, b in self.topResults.items():                # dict  = query : dic2
+                for top, dictX in b.items():                    # dict2 = topX  : dict3
+                    docsPrecision = []
+                    for x in dictX:                             # dict3 = idDoc : score | x = idDoc
+                        if x in arrDict[key].keys():            # if x in queries.relevance.txt
+                            tp += 1         # Relevant retrieved
+                        else:
+                            fp += 1         # Non relevant retrieved
+
+                        fn = len(x) - tp    # All documents minus Relevant retrieved equals Relevant not retrieved
+
+                    try:
+                        precision = (round((tp/(tp + fp)), 4))
+                    except ZeroDivisionError:
+                        precision = 0
+                    docsPrecision.append(precision)
+
+                    try:
+                        recall = (round(tp/(tp + fn), 4))
+                    except ZeroDivisionError:
+                        recall = 0
+                    
+                    try:
+                        fMeasure = (round((2 * recall * precision) / (recall + precision), 4))
+                    except ZeroDivisionError:
+                        fMeasure = 0
+
+                    try:
+                        averagePrecision = sum(docsPrecision)/len(docsPrecision)
+                    except ZeroDivisionError:
+                        averagePrecision = 0
+
+                    arrayMeasures = {}
+                    arrayMeasures.update({"precision": precision})
+                    arrayMeasures.update({"recall": recall})
+                    arrayMeasures.update({"fMeasure": fMeasure})
+                    arrayMeasures.update({"averagePrecision": averagePrecision})
+
+                    if key not in metricsDict:
+                        metricsDict.update({key: {top: arrayMeasures}})
+                    else:
+                        if a not in metricsDict[key]:
+                            metricsDict[key].update({top: arrayMeasures})
+
+        print("\nmetricsDict:", metricsDict)
 
 """ Main """
 if __name__ == "__main__":
@@ -229,7 +323,38 @@ if __name__ == "__main__":
     # Default values
     k1 = 1.2
     b = 0.75
+    boost = "on"
 
-    searcher = search()
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "k:b:o:")
+    except getopt.GetoptError as err:
+        print(str(err))
+        sys.exit()
+    
+    if len(sys.argv) < 1:
+        sys.exit()
+
+    for short, arg in opts:
+        if short == "-k":   # K1
+            try:
+                k1 = float(arg)
+            except:
+                print("ERROR")
+                sys.exit(1)
+        if short == "-b":   # B
+            try:
+                b = float(arg)
+            except:
+                print("ERROR")
+                sys.exit(1)
+        if short == "-o":   # Boost
+            try:
+                boost = str(arg)
+            except:
+                print("ERROR")
+                sys.exit(1)
+
+    searcher = search(k1, b, boost)
     searcher.loadToMem()
-    searcher.loadQueries(k1, b)
+    searcher.loadQueries()
+    searcher.metrics()

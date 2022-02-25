@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "Main.py",
             "console": "integratedTerminal",
-            "args": ["3", "a", "yes", "yes", "1000", "tfidf"]
+            "args": ["a", "3", "a", "yes", "yes", "10000", "tfidf"]
         }
     ]
 }
